@@ -2,60 +2,61 @@ import re
 import nltk
 import spacy
 import unicodedata
+import unidecode
 
 from bs4 import BeautifulSoup
 from contractions import CONTRACTION_MAP
 from nltk.tokenize.toktok import ToktokTokenizer
+from nltk.stem import PorterStemmer, SnowballStemmer, LancasterStemmer
 
 
 tokenizer = ToktokTokenizer()
+nltk.download('stopwords')
+# python -m spacy download en_core_web_sm
 stopword_list = nltk.corpus.stopwords.words('english')
 nlp = spacy.load('en_core_web_sm')
 
 
 def remove_html_tags(text):
-    # Put your code
-    return text
+    return BeautifulSoup(text, 'html.parser').get_text()
 
 
-def stem_text(text):
-    # Put your code
-    return text
+def stem_text(text:str, stemmer = PorterStemmer()):
+    return " ".join([stemmer.stem(token) for token in tokenizer.tokenize(text)])
 
 
 def lemmatize_text(text):
-    # Put your code
-    return text
+    return " ".join([token.lemma_ for token in nlp(text)])
 
 
 def expand_contractions(text, contraction_mapping=CONTRACTION_MAP):
-    # Put your code
+    for key, value in contraction_mapping.items():
+      text = text.replace(key, value)
     return text
-
-
+    
 def remove_accented_chars(text):
-    # Put your code
-    return text
+    return ''.join(c for c in unicodedata.normalize('NFD', text)
+                  if unicodedata.category(c) != 'Mn')
 
 
-def remove_special_chars(text, remove_digits=False):
-    # Put your code
-    return text
+def remove_special_chars(text: str, remove_digits: bool=False):
+    if remove_digits:
+      return ''.join([c for c in text if (c.isalpha() or c.isspace())]) 
+    else:
+      return ''.join([c for c in text if (c.isalnum() or c.isspace())])
 
 
-def remove_stopwords(text, is_lower_case=False, stopwords=stopword_list):
-    # Put your code
-    return text
+def remove_stopwords(text: str, is_lower_case=True, stopwords=stopword_list):
+    text = text.lower() if is_lower_case else text
+    return " ".join([token for token in tokenizer.tokenize(text) if token not in stopwords])
 
 
-def remove_extra_new_lines(text):
-    # Put your code
-    return text
+def remove_extra_new_lines(text: str):
+    return text.replace("\n", " ")
 
 
-def remove_extra_whitespace(text):
-    # Put your code
-    return text
+def remove_extra_whitespace(text: str):
+    return re.sub(' +', ' ', text)
     
 
 def normalize_corpus(
