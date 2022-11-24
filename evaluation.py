@@ -7,14 +7,14 @@ from sklearn.preprocessing import label_binarize
 
 def get_performance(predictions, y_test, labels=[1, 0]):
     # Put your code
-    accuracy = None  # replace
-    precision = None  # replace
-    recall = None  # replace
-    f1_score = None  # replace
+    accuracy = metrics.accuracy_score(y_test, predictions)
+    precision = metrics.precision_score(y_test, predictions)
+    recall = metrics.recall_score(y_test, predictions)
+    f1_score = metrics.f1_score(y_test, predictions)
     
-    report = None  # replace
+    report = metrics.precision_recall_fscore_support(y_test, predictions)
     
-    cm = None  # replace
+    cm = metrics.confusion_matrix(y_test, predictions)  # replace
     cm_as_dataframe = pd.DataFrame(data=cm)
     
     print('Model Performance metrics:')

@@ -1,2 +1,5 @@
 .DS_Store
 data/
+.ipynb*
+__pycache__/
+*.save
