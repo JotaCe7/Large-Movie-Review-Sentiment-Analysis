@@ -35,9 +35,9 @@ def get_performance(predictions, y_test, labels=[1, 0]):
 
 def plot_roc(model, y_test, features):
     # Put your code
-    fpr = None  # replace
-    tpr = None  # replace
-    roc_auc = None  # replace
+    y_proba = model.predict_proba(features)[:,1]
+    fpr, tpr, _ = metrics.roc_curve(y_test, y_proba)
+    roc_auc = metrics.roc_auc_score(y_test, y_proba)
 
     plt.figure(figsize=(10, 5))
     plt.plot(fpr, tpr, label=f'ROC curve (area = {roc_auc})', linewidth=2.5)
