@@ -26,7 +26,8 @@ def stem_text(text:str, stemmer = PorterStemmer()):
 
 
 def lemmatize_text(text):
-    return " ".join([token.lemma_ for token in nlp(text)])
+    tokens = nlp(text)
+    return " ".join([token.lemma_ for token in tokens])
 
 
 def expand_contractions(text, contraction_mapping=CONTRACTION_MAP):
@@ -38,12 +39,8 @@ def remove_accented_chars(text):
     return ''.join(c for c in unicodedata.normalize('NFD', text)
                   if unicodedata.category(c) != 'Mn')
 
-
 def remove_special_chars(text: str, remove_digits: bool=False):
-    if remove_digits:
-      return ''.join([c for c in text if (c.isalpha() or c.isspace())]) 
-    else:
-      return ''.join([c for c in text if (c.isalnum() or c.isspace())])
+    return ''.join([c for c in text if ((c.isalpha() if remove_digits else c.isalnum()) or c.isspace())])
 
 
 def remove_stopwords(text: str, is_lower_case=True, stopwords=stopword_list):
@@ -72,60 +69,91 @@ def normalize_corpus(
     stopword_removal=True,
     stopwords=stopword_list
 ):
+    # if isinstance(corpus, list):
     
     normalized_corpus = []
 
     # Normalize each doc in the corpus
     for doc in corpus:
-        # Remove HTML
-        if html_stripping:
-            doc = remove_html_tags(doc)
-            
-        # Remove extra newlines
-        doc = remove_extra_new_lines(doc)
-        
-        # Remove accented chars
-        if accented_char_removal:
-            doc = remove_accented_chars(doc)
-            
-        # Expand contractions    
-        if contraction_expansion:
-            doc = expand_contractions(doc)
-            
-        # Lemmatize text
-        if text_lemmatization:
-            doc = lemmatize_text(doc)
-            
-        # Stemming text
-        if text_stemming and not text_lemmatization:
-            doc = stem_text(doc)
-            
-        # Remove special chars and\or digits    
-        if special_char_removal:
-            doc = remove_special_chars(
-                doc,
-                remove_digits=remove_digits
-            )  
+          # Remove HTML
+          if html_stripping:
+              doc = remove_html_tags(doc)
+              
+          # Remove extra newlines
+          doc = remove_extra_new_lines(doc)
+          
+          # Lowercase the text    
+          if text_lower_case:
+              doc = doc.lower()
+          
+          # Remove accented chars
+          if accented_char_removal:
+              doc = remove_accented_chars(doc)
+              
+          # Expand contractions    
+          if contraction_expansion:
+              doc = expand_contractions(doc)
 
-        # Remove extra whitespace
-        doc = remove_extra_whitespace(doc)
+          # Remove special chars and\or digits    
+          if special_char_removal:
+              doc = remove_special_chars(
+                  doc,
+                  remove_digits=remove_digits
+              )  
 
-         # Lowercase the text    
-        if text_lower_case:
-            doc = doc.lower()
-
-        # Remove stopwords
-        if stopword_removal:
-            doc = remove_stopwords(
-                doc,
-                is_lower_case=text_lower_case,
-                stopwords=stopwords
-            )
-
-        # Remove extra whitespace
-        doc = remove_extra_whitespace(doc)
-        doc = doc.strip()
-            
-        normalized_corpus.append(doc)
-        
+          # Remove stopwords
+          if stopword_removal:
+              doc = remove_stopwords(
+                  doc,
+                  is_lower_case=text_lower_case,
+                  stopwords=stopwords
+              )
+              
+          # Lemmatize text
+          if text_lemmatization:
+              doc = lemmatize_text(doc)
+              
+          # Stemming text
+          if text_stemming and not text_lemmatization:
+              doc = stem_text(doc)
+              
+          # Remove extra whitespace
+          doc = remove_extra_whitespace(doc)
+          
+          # Remove extra whitespace
+          doc = remove_extra_whitespace(doc)
+          doc = doc.strip()
+              
+          normalized_corpus.append(doc)
+          
     return normalized_corpus
+
+def normalize_data(
+    data,
+    html_stripping=True,
+    contraction_expansion=True,
+    accented_char_removal=True,
+    text_lower_case=True,
+    text_stemming=False,
+    text_lemmatization=False,
+    special_char_removal=True,
+    remove_digits=True,
+    stopword_removal=True,
+    stopwords=stopword_list
+):
+    if isinstance(data, list):
+      return normalize_corpus(data, html_stripping, contraction_expansion,
+                              accented_char_removal, text_lower_case, text_stemming,
+                              text_lemmatization, special_char_removal,
+                              remove_digits, stopword_removal, stopwords)
+    elif isinstance(data, tuple):
+      normalized_data = []
+      for corpus in data:
+        normalized_data.append(normalize_corpus(corpus, html_stripping, contraction_expansion,
+                                                accented_char_removal, text_lower_case, text_stemming,
+                                                text_lemmatization, special_char_removal,
+                                                remove_digits, stopword_removal, stopwords))
+      return normalized_data
+    else:
+      raise TypeError("data sholud be either a list or a tuple")
+    
