@@ -44,6 +44,8 @@ def save_object(object, object_name, data_path=PICKLE_PATH):
   -------
       Returns (byspass) the object to be saved
   """
+  # Create directory to save pickle file in case it does not exist
+  os.makedirs(os.path.dirname(data_path), exist_ok=True)
   with open(os.path.join(data_path, object_name), 'wb') as f:
     pickle.dump(object, f, protocol=pickle.HIGHEST_PROTOCOL)
   return object
