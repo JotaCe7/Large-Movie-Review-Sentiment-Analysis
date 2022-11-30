@@ -6,7 +6,7 @@
 You can use `Docker` to easily install all the needed packages and libraries:
 
 ```bash
-$ docker build -t nlp_project -f docker/Dockerfile .
+$ docker build -t nlp_project_jc --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) .
 ```
 
 ### Run Docker
@@ -14,8 +14,10 @@ $ docker build -t nlp_project -f docker/Dockerfile .
 ```bash
 $ docker run --rm --net host -it \
     -v $(pwd):/home/app/src \
-    nlp_project \
+    nlp_project_jc \
     bash
+
+$ docker run --rm --net host -it -v "$(pwd)":/home/app/src nlp_project_jc bash
 ```
 
 ## Run Project
